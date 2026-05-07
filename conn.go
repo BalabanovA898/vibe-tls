@@ -30,6 +30,22 @@ type Certificate struct {
 	Signature []byte `json:"signature"`
 }
 
+func NewSecureConn(rawConnection net.Conn, config Config) (*SecureConn, error) {
+	conn := &SecureConn{
+		Conn:   rawConnection,
+		Config: config,
+	}
+
+	err := conn.handshake()
+
+	if err != nil {
+		conn.Close()
+		return nil, err
+	}
+
+	return conn, nil
+}
+
 func Dial(network, addr string, conf Config) (*SecureConn, error) {
 	rawConn, _ := net.Dial(network, addr)
 	sConn := &SecureConn{Conn: rawConn, Config: conf}
